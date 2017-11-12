@@ -198,17 +198,19 @@ void updateData() {
   //gfx.fillBuffer(MINI_BLACK);
   gfx.setFont(ArialRoundedMTBold_14);
 
-  
-
   bool cityIsPws = strncmp(WUNDERGROUND_CITY.c_str(), "pws:", 4) == 0;
-  String cityWithoutPws;
-  if(cityIsPws) {
-    cityWithoutPws = String(&WUNDERGROUND_CITY.c_str()[4]);
+  bool cityIsZmw = strncmp(WUNDERGROUND_CITY.c_str(), "zmw:", 4) == 0;
+  
+  String cityWithoutType;
+  if(cityIsPws || cityIsZmw) {
+    cityWithoutType = String(&WUNDERGROUND_CITY.c_str()[4]);
   }
   
   WundergroundConditions *conditionsClient = new WundergroundConditions(IS_METRIC);
   if(cityIsPws) {
-    conditionsClient->updateConditionsPWS(&conditions, WUNDERGRROUND_API_KEY, WUNDERGRROUND_LANGUAGE, cityWithoutPws);
+    conditionsClient->updateConditionsPWS(&conditions, WUNDERGRROUND_API_KEY, WUNDERGRROUND_LANGUAGE, cityWithoutType);
+  } else if(cityIsZmw) {
+    conditionsClient->updateConditions(&conditions, WUNDERGRROUND_API_KEY, WUNDERGRROUND_LANGUAGE, cityWithoutType);
   } else {
     conditionsClient->updateConditions(&conditions, WUNDERGRROUND_API_KEY, WUNDERGRROUND_LANGUAGE, WUNDERGROUND_COUNTRY, WUNDERGROUND_CITY);
   }
@@ -217,7 +219,9 @@ void updateData() {
 
   WundergroundHourly *hourlyClient = new WundergroundHourly(IS_METRIC, !IS_STYLE_12HR);
   if(cityIsPws) {
-    hourlyClient->updateHourlyPWS(hourlies, WUNDERGRROUND_API_KEY, WUNDERGRROUND_LANGUAGE, cityWithoutPws);
+    hourlyClient->updateHourlyPWS(hourlies, WUNDERGRROUND_API_KEY, WUNDERGRROUND_LANGUAGE, cityWithoutType);
+  } else if(cityIsZmw) {
+    hourlyClient->updateHourlyZMW(hourlies, WUNDERGRROUND_API_KEY, WUNDERGRROUND_LANGUAGE, cityWithoutType);
   } else {
     hourlyClient->updateHourly(hourlies, WUNDERGRROUND_API_KEY, WUNDERGRROUND_LANGUAGE, WUNDERGROUND_COUNTRY, WUNDERGROUND_CITY);
   }
@@ -227,7 +231,9 @@ void updateData() {
 
   WundergroundAstronomy *astronomyClient = new WundergroundAstronomy(IS_STYLE_12HR);
   if(cityIsPws) {
-    astronomyClient->updateAstronomyPWS(&astronomy, WUNDERGRROUND_API_KEY, WUNDERGRROUND_LANGUAGE, cityWithoutPws);
+    astronomyClient->updateAstronomyPWS(&astronomy, WUNDERGRROUND_API_KEY, WUNDERGRROUND_LANGUAGE, cityWithoutType);
+  } else if(cityIsZmw) {
+    astronomyClient->updateAstronomy(&astronomy, WUNDERGRROUND_API_KEY, WUNDERGRROUND_LANGUAGE, cityWithoutType);
   } else {
     astronomyClient->updateAstronomy(&astronomy, WUNDERGRROUND_API_KEY, WUNDERGRROUND_LANGUAGE, WUNDERGROUND_COUNTRY, WUNDERGROUND_CITY);
   }
